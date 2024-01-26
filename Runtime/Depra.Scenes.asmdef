@@ -1,0 +1,20 @@
+{
+    "name": "Depra.Scenes",
+    "rootNamespace": "Depra.Scenes",
+    "references": [
+        "GUID:36e952f101acb024da7ad1c7de888799",
+        "GUID:dae2464e94296ca48971481784720efc"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Depra.Assets.dll",
+        "Depra.Loading.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
