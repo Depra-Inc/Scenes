@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Depra.Scenes.Module;
 
-namespace Depra.Scenes
+namespace Depra.Scenes.Definitions
 {
 	[CreateAssetMenu(fileName = FILE_NAME, menuName = MENU_PATH + FILE_NAME, order = DEFAULT_ORDER)]
 	public sealed class SceneDatabase : ScriptableObject

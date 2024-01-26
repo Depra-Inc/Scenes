@@ -5,9 +5,10 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Loading.Operations;
+using Depra.Scenes.Definitions;
 using UnityEngine.SceneManagement;
 
-namespace Depra.Scenes
+namespace Depra.Scenes.Operations
 {
 	public sealed class SceneUnloadingOperation : ILoadingOperation
 	{

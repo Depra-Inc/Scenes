@@ -1,16 +1,18 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Loading.Curtain;
 using Depra.Loading.Operations;
+using Depra.Scenes.Definitions;
+using Depra.Scenes.Exceptions;
+using Depra.Scenes.Operations;
 using UnityEngine.SceneManagement;
 
-namespace Depra.Scenes
+namespace Depra.Scenes.Services
 {
 	public sealed class SceneChange : ISceneChange
 	{
@@ -47,9 +49,8 @@ namespace Depra.Scenes
 
 		async Task ISceneChange.Unload(SceneDefinition scene, CancellationToken token)
 		{
-			var operations = new[] { new SceneLoadingOperation(scene, OperationDescription.Default(scene.Name)) };
-			ILoadingCurtain cleanCurtain = new CleanLoadingCurtain();
-			await cleanCurtain.Load(operations, token);
+			var operations = new[] { new SceneUnloadingOperation(scene, OperationDescription.Default(scene.Name)) };
+			await new CleanLoadingCurtain().Load(operations, token);
 		}
 
 		Task ISceneChange.Reload(IEnumerable<ILoadingOperation> addOperations, CancellationToken token) =>

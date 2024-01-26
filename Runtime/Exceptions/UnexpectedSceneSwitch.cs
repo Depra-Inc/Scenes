@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Depra.Scenes
+namespace Depra.Scenes.Exceptions
 {
 	internal sealed class UnexpectedSceneSwitch : Exception
 	{

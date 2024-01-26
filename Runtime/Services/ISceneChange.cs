@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Loading.Operations;
+using Depra.Scenes.Definitions;
 
-namespace Depra.Scenes
+namespace Depra.Scenes.Services
 {
 	public interface ISceneChange
 	{

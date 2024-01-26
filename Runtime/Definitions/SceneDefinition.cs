@@ -6,7 +6,7 @@ using Depra.Inspector.Attributes;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Depra.Scenes
+namespace Depra.Scenes.Definitions
 {
 	[Serializable]
 	public sealed partial class SceneDefinition
