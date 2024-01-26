@@ -2,7 +2,6 @@
 // © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Loading.Operations;
@@ -23,29 +22,24 @@ namespace Depra.Scenes.Operations
 
 		public OperationDescription Description { get; }
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void ActivateIfNeeded(SceneDefinition scene)
-		{
-			if (scene.ActivateOnLoad)
-			{
-				SceneManager.SetActiveScene(scene.Handle);
-			}
-		}
-
 		async Task ILoadingOperation.Load(Action<float> onProgress, CancellationToken token)
 		{
 			onProgress?.Invoke(0);
-			var operation = SceneManager.LoadSceneAsync(_sceneDefinition.Name, _sceneDefinition.LoadMode);
+			var nextScene = _sceneDefinition.Handle;
+			var operation = SceneManager.LoadSceneAsync(nextScene.handle, _sceneDefinition.LoadMode);
 			operation.allowSceneActivation = true;
 
-			while (operation.isDone == false)
+			while (nextScene.isLoaded == false)
 			{
 				onProgress?.Invoke(operation.progress);
 				await Task.Yield();
 			}
 
 			onProgress?.Invoke(1);
-			ActivateIfNeeded(_sceneDefinition);
+			if (_sceneDefinition.ActivateOnLoad && nextScene.IsValid())
+			{
+				SceneManager.SetActiveScene(nextScene);
+			}
 		}
 	}
 }
