@@ -9,10 +9,12 @@ using UnityEngine.SceneManagement;
 namespace Depra.Scenes
 {
 	[Serializable]
-	public sealed class SceneDefinition : IEquatable<SceneDefinition>
+	public sealed partial class SceneDefinition
 	{
 		[Scene] [SerializeField] private string _name;
+		[SerializeField] private string _title;
 		[SerializeField] private LoadSceneMode _loadMode;
+		[TextArea] [SerializeField] private string _description;
 
 		public SceneDefinition(string name, LoadSceneMode loadMode)
 		{
@@ -20,12 +22,18 @@ namespace Depra.Scenes
 			_loadMode = loadMode;
 		}
 
+		public string Name => _name;
+		public string Description => _description;
+		public LoadSceneMode LoadMode => _loadMode;
+		public Scene Scene => SceneManager.GetSceneByName(Name);
+		public string Title => string.IsNullOrEmpty(_title) ? Name : _title;
+	}
+
+	public sealed partial class SceneDefinition : IEquatable<SceneDefinition>
+	{
 		public static bool operator ==(SceneDefinition a, SceneDefinition b) => a?.Equals(b) ?? b is null;
 
 		public static bool operator !=(SceneDefinition a, SceneDefinition b) => !(a == b);
-
-		public string Name => _name;
-		public LoadSceneMode LoadMode => _loadMode;
 
 		public bool Equals(SceneDefinition other) => other != null && Name == other.Name;
 
@@ -33,6 +41,6 @@ namespace Depra.Scenes
 
 		public override int GetHashCode() => Name.GetHashCode();
 
-		public override string ToString() => Name;
+		public override string ToString() => Title;
 	}
 }

@@ -14,16 +14,17 @@ namespace Depra.Scenes
 	public sealed class SceneChange : ISceneChange
 	{
 		private readonly ILoadingCurtain _loadingCurtain;
-		private SceneDefinition _currentScene;
 
 		public SceneChange(ILoadingCurtain loadingCurtain) : this(
 			new SceneDefinition(SceneManager.GetActiveScene().name, LoadSceneMode.Single), loadingCurtain) { }
 
 		public SceneChange(SceneDefinition initialScene, ILoadingCurtain loadingCurtain)
 		{
-			_currentScene = initialScene;
+			ActiveScene = initialScene;
 			_loadingCurtain = loadingCurtain;
 		}
+
+		public SceneDefinition ActiveScene { get; private set; }
 
 		private async Task SwitchAsyncInternal(SceneDefinition scene, IEnumerable<ILoadingOperation> addOperations,
 			CancellationToken token)
@@ -36,7 +37,7 @@ namespace Depra.Scenes
 		}
 
 		public bool IsActive(SceneDefinition scene) =>
-			scene == _currentScene || scene.Name == SceneManager.GetActiveScene().name;
+			scene == ActiveScene || scene.Name == SceneManager.GetActiveScene().name;
 
 		void ISceneChange.Switch(SceneDefinition scene)
 		{
@@ -45,16 +46,22 @@ namespace Depra.Scenes
 				throw new UnexpectedSceneSwitch(scene.Name);
 			}
 
-			_currentScene = scene;
-			SceneManager.LoadScene(_currentScene.Name, _currentScene.LoadMode);
+			ActiveScene = scene;
+			SceneManager.LoadScene(ActiveScene.Name, ActiveScene.LoadMode);
 		}
 
 		Task ISceneChange.SwitchAsync(SceneDefinition scene, IEnumerable<ILoadingOperation> addOperations,
-			CancellationToken token) => IsActive(scene)
-			? throw new UnexpectedSceneSwitch(scene.Name)
-			: SwitchAsyncInternal(_currentScene = scene, addOperations, token);
+			CancellationToken token)
+		{
+			if (IsActive(scene))
+			{
+				throw new UnexpectedSceneSwitch(scene.Name);
+			}
+
+			return SwitchAsyncInternal(ActiveScene = scene, addOperations, token);
+		}
 
 		Task ISceneChange.Reload(IEnumerable<ILoadingOperation> addOperations, CancellationToken token) =>
-			SwitchAsyncInternal(_currentScene, addOperations, token);
+			SwitchAsyncInternal(ActiveScene, addOperations, token);
 	}
 }
