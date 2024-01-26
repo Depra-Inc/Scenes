@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -26,7 +27,10 @@ namespace Depra.Scenes
 
 		public SceneDefinition ActiveScene { get; private set; }
 
-		private async Task SwitchAsyncInternal(SceneDefinition scene, IEnumerable<ILoadingOperation> addOperations,
+		public bool IsActive(SceneDefinition scene) =>
+			scene == ActiveScene || scene.Name == SceneManager.GetActiveScene().name;
+
+		private async Task LoadInternal(SceneDefinition scene, IEnumerable<ILoadingOperation> addOperations,
 			CancellationToken token)
 		{
 			var operations = addOperations.Concat(new[]
@@ -36,32 +40,19 @@ namespace Depra.Scenes
 			_loadingCurtain.Unload();
 		}
 
-		public bool IsActive(SceneDefinition scene) =>
-			scene == ActiveScene || scene.Name == SceneManager.GetActiveScene().name;
+		Task ISceneChange.Load(SceneDefinition scene, IEnumerable<ILoadingOperation> addOperations,
+			CancellationToken token) => IsActive(scene)
+			? throw new UnexpectedSceneSwitch(scene.Name)
+			: LoadInternal(ActiveScene = scene, addOperations, token);
 
-		void ISceneChange.Switch(SceneDefinition scene)
+		async Task ISceneChange.Unload(SceneDefinition scene, CancellationToken token)
 		{
-			if (IsActive(scene))
-			{
-				throw new UnexpectedSceneSwitch(scene.Name);
-			}
-
-			ActiveScene = scene;
-			SceneManager.LoadScene(ActiveScene.Name, ActiveScene.LoadMode);
-		}
-
-		Task ISceneChange.SwitchAsync(SceneDefinition scene, IEnumerable<ILoadingOperation> addOperations,
-			CancellationToken token)
-		{
-			if (IsActive(scene))
-			{
-				throw new UnexpectedSceneSwitch(scene.Name);
-			}
-
-			return SwitchAsyncInternal(ActiveScene = scene, addOperations, token);
+			var operations = new[] { new SceneLoadingOperation(scene, OperationDescription.Default(scene.Name)) };
+			ILoadingCurtain cleanCurtain = new CleanLoadingCurtain();
+			await cleanCurtain.Load(operations, token);
 		}
 
 		Task ISceneChange.Reload(IEnumerable<ILoadingOperation> addOperations, CancellationToken token) =>
-			SwitchAsyncInternal(ActiveScene, addOperations, token);
+			LoadInternal(ActiveScene, addOperations, token);
 	}
 }

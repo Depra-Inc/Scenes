@@ -15,6 +15,7 @@ namespace Depra.Scenes
 		[SerializeField] private string _title;
 		[SerializeField] private LoadSceneMode _loadMode;
 		[TextArea] [SerializeField] private string _description;
+		[SerializeField] private bool _activateOnLoad = true;
 
 		public SceneDefinition(string name, LoadSceneMode loadMode)
 		{
@@ -27,6 +28,8 @@ namespace Depra.Scenes
 		public LoadSceneMode LoadMode => _loadMode;
 		public Scene Handle => SceneManager.GetSceneByName(Name);
 		public string Title => string.IsNullOrEmpty(_title) ? Name : _title;
+
+		internal bool ActivateOnLoad => _activateOnLoad;
 	}
 
 	public sealed partial class SceneDefinition : IEquatable<SceneDefinition>

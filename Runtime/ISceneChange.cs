@@ -12,10 +12,10 @@ namespace Depra.Scenes
 	{
 		bool IsActive(SceneDefinition scene);
 
-		void Switch(SceneDefinition scene);
+		Task Unload(SceneDefinition scene, CancellationToken token);
 
 		Task Reload(IEnumerable<ILoadingOperation> addOperations, CancellationToken token);
 
-		Task SwitchAsync(SceneDefinition scene, IEnumerable<ILoadingOperation> addOperations, CancellationToken token);
+		Task Load(SceneDefinition scene, IEnumerable<ILoadingOperation> addOperations, CancellationToken token);
 	}
 }
