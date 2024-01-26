@@ -14,6 +14,12 @@ namespace Depra.Scenes
 		[Scene] [SerializeField] private string _name;
 		[SerializeField] private LoadSceneMode _loadMode;
 
+		public SceneDefinition(string name, LoadSceneMode loadMode)
+		{
+			_name = name;
+			_loadMode = loadMode;
+		}
+
 		public static bool operator ==(SceneDefinition a, SceneDefinition b) => a?.Equals(b) ?? b is null;
 
 		public static bool operator !=(SceneDefinition a, SceneDefinition b) => !(a == b);

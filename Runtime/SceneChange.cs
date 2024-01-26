@@ -16,6 +16,9 @@ namespace Depra.Scenes
 		private readonly ILoadingCurtain _loadingCurtain;
 		private SceneDefinition _currentScene;
 
+		public SceneChange(ILoadingCurtain loadingCurtain) : this(
+			new SceneDefinition(SceneManager.GetActiveScene().name, LoadSceneMode.Single), loadingCurtain) { }
+
 		public SceneChange(SceneDefinition initialScene, ILoadingCurtain loadingCurtain)
 		{
 			_currentScene = initialScene;
