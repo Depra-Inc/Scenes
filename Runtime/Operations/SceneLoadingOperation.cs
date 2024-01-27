@@ -31,7 +31,7 @@ namespace Depra.Scenes.Operations
 			var operation = SceneManager.LoadSceneAsync(nextScene.handle, _sceneDefinition.LoadMode);
 			operation.allowSceneActivation = true;
 
-			while (nextScene.isLoaded == false)
+			while (operation.isDone == false)
 			{
 				onProgress?.Invoke(operation.progress);
 				await Task.Yield();
