@@ -26,7 +26,6 @@ namespace Depra.Scenes.Definitions
 		public string Name => _name;
 		public string Description => _description;
 		public LoadSceneMode LoadMode => _loadMode;
-		public Scene Handle => SceneManager.GetSceneByName(Name);
 		public string Title => string.IsNullOrEmpty(_title) ? Name : _title;
 
 		internal bool ActivateOnLoad => _activateOnLoad;
