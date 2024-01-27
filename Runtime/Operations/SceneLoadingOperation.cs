@@ -29,7 +29,6 @@ namespace Depra.Scenes.Operations
 			var nextScene = _sceneDefinition.Handle;
 			SceneManager.sceneLoaded += OnSceneLoaded;
 			var operation = SceneManager.LoadSceneAsync(nextScene.handle, _sceneDefinition.LoadMode);
-			operation.allowSceneActivation = true;
 
 			while (operation.isDone == false)
 			{
@@ -43,7 +42,7 @@ namespace Depra.Scenes.Operations
 		private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 		{
 			SceneManager.sceneLoaded -= OnSceneLoaded;
-			if (_sceneDefinition.ActivateOnLoad && scene.IsValid())
+			if (_sceneDefinition.ActivateOnLoad)
 			{
 				SceneManager.SetActiveScene(scene);
 			}
