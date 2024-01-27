@@ -25,7 +25,9 @@ namespace Depra.Scenes.Operations
 		async Task ILoadingOperation.Load(Action<float> onProgress, CancellationToken token)
 		{
 			onProgress?.Invoke(0);
+
 			var nextScene = _sceneDefinition.Handle;
+			SceneManager.sceneLoaded += OnSceneLoaded;
 			var operation = SceneManager.LoadSceneAsync(nextScene.handle, _sceneDefinition.LoadMode);
 			operation.allowSceneActivation = true;
 
@@ -36,9 +38,14 @@ namespace Depra.Scenes.Operations
 			}
 
 			onProgress?.Invoke(1);
-			if (_sceneDefinition.ActivateOnLoad && nextScene.IsValid())
+		}
+
+		private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+		{
+			SceneManager.sceneLoaded -= OnSceneLoaded;
+			if (_sceneDefinition.ActivateOnLoad && scene.IsValid())
 			{
-				SceneManager.SetActiveScene(nextScene);
+				SceneManager.SetActiveScene(scene);
 			}
 		}
 	}
