@@ -32,28 +32,34 @@ namespace Depra.Scenes.Services
 		public bool IsActive(SceneDefinition scene) =>
 			scene == ActiveScene || scene.Name == SceneManager.GetActiveScene().name;
 
-		private async Task LoadInternal(SceneDefinition scene, IEnumerable<ILoadingOperation> addOperations,
-			CancellationToken token)
+		public Task Load(SceneDefinition scene, CancellationToken token,
+			IEnumerable<ILoadingOperation> addOperations) => IsActive(scene)
+			? throw new UnexpectedSceneSwitch(scene.Name)
+			: LoadInternal(ActiveScene = scene, token, addOperations);
+
+		public async Task Unload(SceneDefinition scene, CancellationToken token)
 		{
+			var operations = new[] { new SceneUnloadingOperation(scene, OperationDescription.Default(scene.Name)) };
+			await new CleanLoadingCurtain().Load(operations, token);
+		}
+
+		public async Task Reload(CancellationToken token, IEnumerable<ILoadingOperation> addOperations)
+		{
+			await Unload(ActiveScene, token);
+			await
+
+				(ActiveScene, token, addOperations);
+		}
+
+		private async Task LoadInternal(SceneDefinition scene, CancellationToken token,
+			IEnumerable<ILoadingOperation> addOperations = null)
+		{
+			addOperations ??= new List<ILoadingOperation>();
 			var operations = addOperations.Concat(new[]
 				{ new SceneLoadingOperation(scene, OperationDescription.Default(scene.Name)) });
 
 			await _loadingCurtain.Load(operations, token);
 			_loadingCurtain.Unload();
 		}
-
-		Task ISceneChange.Load(SceneDefinition scene, IEnumerable<ILoadingOperation> addOperations,
-			CancellationToken token) => IsActive(scene)
-			? throw new UnexpectedSceneSwitch(scene.Name)
-			: LoadInternal(ActiveScene = scene, addOperations, token);
-
-		async Task ISceneChange.Unload(SceneDefinition scene, CancellationToken token)
-		{
-			var operations = new[] { new SceneUnloadingOperation(scene, OperationDescription.Default(scene.Name)) };
-			await new CleanLoadingCurtain().Load(operations, token);
-		}
-
-		Task ISceneChange.Reload(IEnumerable<ILoadingOperation> addOperations, CancellationToken token) =>
-			LoadInternal(ActiveScene, addOperations, token);
 	}
 }

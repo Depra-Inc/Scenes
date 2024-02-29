@@ -15,8 +15,8 @@ namespace Depra.Scenes.Services
 
 		Task Unload(SceneDefinition scene, CancellationToken token);
 
-		Task Reload(IEnumerable<ILoadingOperation> addOperations, CancellationToken token);
+		Task Reload(CancellationToken token, IEnumerable<ILoadingOperation> addOperations = null);
 
-		Task Load(SceneDefinition scene, IEnumerable<ILoadingOperation> addOperations, CancellationToken token);
+		Task Load(SceneDefinition scene, CancellationToken token, IEnumerable<ILoadingOperation> addOperations = null);
 	}
 }

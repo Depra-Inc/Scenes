@@ -26,7 +26,6 @@ namespace Depra.Scenes.Operations
 		{
 			onProgress?.Invoke(0);
 			var operation = SceneManager.UnloadSceneAsync(_sceneDefinition.Name);
-			operation.allowSceneActivation = true;
 
 			while (operation.isDone == false)
 			{
