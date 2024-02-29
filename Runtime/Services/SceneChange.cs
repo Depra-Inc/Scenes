@@ -46,9 +46,7 @@ namespace Depra.Scenes.Services
 		public async Task Reload(CancellationToken token, IEnumerable<ILoadingOperation> addOperations)
 		{
 			await Unload(ActiveScene, token);
-			await
-
-				(ActiveScene, token, addOperations);
+			await LoadInternal(ActiveScene, token, addOperations);
 		}
 
 		private async Task LoadInternal(SceneDefinition scene, CancellationToken token,
