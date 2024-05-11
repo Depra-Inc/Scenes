@@ -11,18 +11,13 @@ namespace Depra.Scenes.Definitions
 {
 	public sealed partial class SceneDefinition : ScriptableObject
 	{
-		[Scene] [SerializeField] private string _name;
+		[field: Scene, SerializeField] public string Name { get; private set; }
 		[SerializeField] private string _title;
-		[SerializeField] private LoadSceneMode _loadMode;
-		[TextArea] [SerializeField] private string _description;
-		[SerializeField] private bool _activateOnLoad = true;
+		[field: SerializeField] public LoadSceneMode LoadMode { get; private set; }
+		[field: TextArea, SerializeField] public string Description { get; private set; }
+		[field: SerializeField] internal bool ActivateOnLoad { get; private set; } = true;
 
-		public string Name => _name;
-		public string Description => _description;
-		public LoadSceneMode LoadMode => _loadMode;
 		public string Title => string.IsNullOrEmpty(_title) ? Name : _title;
-
-		internal bool ActivateOnLoad => _activateOnLoad;
 
 		public bool IsActive() => SceneManager.GetActiveScene().name == Name;
 	}
