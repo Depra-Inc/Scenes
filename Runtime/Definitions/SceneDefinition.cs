@@ -23,6 +23,8 @@ namespace Depra.Scenes.Definitions
 		public string Title => string.IsNullOrEmpty(_title) ? Name : _title;
 
 		internal bool ActivateOnLoad => _activateOnLoad;
+
+		public bool IsActive() => SceneManager.GetActiveScene().name == Name;
 	}
 
 	[CreateAssetMenu(fileName = FILE_NAME, menuName = MENU_PATH + FILE_NAME, order = DEFAULT_ORDER)]

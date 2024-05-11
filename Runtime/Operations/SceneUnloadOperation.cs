@@ -9,11 +9,11 @@ using UnityEngine.SceneManagement;
 
 namespace Depra.Scenes.Operations
 {
-	public sealed class SceneUnloadingOperation : ILoadingOperation
+	public sealed class SceneUnloadOperation : ILoadingOperation
 	{
 		private readonly SceneDefinition _sceneForUnload;
 
-		public SceneUnloadingOperation(SceneDefinition sceneForUnload, OperationDescription description)
+		public SceneUnloadOperation(SceneDefinition sceneForUnload, OperationDescription description)
 		{
 			Description = description;
 			_sceneForUnload = sceneForUnload;
