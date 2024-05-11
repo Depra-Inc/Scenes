@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static Depra.Scenes.Module;
 
 namespace Depra.Scenes.Definitions
@@ -17,10 +18,12 @@ namespace Depra.Scenes.Definitions
 		private const string FILE_NAME = nameof(SceneDatabase);
 
 		public IEnumerable<SceneDefinition> All => _scenes;
+		public SceneDefinition Active => Find(SceneManager.GetActiveScene().name);
 
 		[ContextMenu(nameof(RemoveDuplicates))]
 		public void RemoveDuplicates() => _scenes = _scenes.Distinct().ToArray();
 
-		public SceneDefinition Find(string sceneName) => Array.Find(_scenes, x => x.Name == sceneName);
+		public SceneDefinition Find(string sceneName) =>
+			Array.Find(_scenes, x => x.DisplayName == sceneName);
 	}
 }

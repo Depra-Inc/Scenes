@@ -6,26 +6,26 @@ using System.Threading.Tasks;
 using Depra.Loading.Operations;
 using Depra.Scenes.Definitions;
 using Depra.Scenes.Operations;
-using UnityEngine.SceneManagement;
 
 namespace Depra.Scenes.Change
 {
 	public sealed class SceneReloadOperation : ILoadingOperation
 	{
 		private readonly SceneDefinition _activeScene;
+		private readonly OperationDescription _description;
 
 		public SceneReloadOperation(SceneDatabase scenes)
 		{
-			_activeScene = scenes.Find(SceneManager.GetActiveScene().name);
-			Description = OperationDescription.Default(_activeScene.Name);
+			_activeScene = scenes.Active;
+			_description = OperationDescription.Default(_activeScene.DisplayName);
 		}
 
-		public OperationDescription Description { get; }
+		OperationDescription ILoadingOperation.Description => _description;
 
 		public async Task Load(ProgressCallback onProgress, CancellationToken token)
 		{
-			await new SceneUnloadOperation(_activeScene, Description).Load(onProgress, token);
-			await new SceneLoadOperation(_activeScene, Description).Load(onProgress, token);
+			await new SceneUnloadOperation(_activeScene, _description).Load(onProgress, token);
+			await new SceneLoadOperation(_activeScene, _description).Load(onProgress, token);
 		}
 	}
 }

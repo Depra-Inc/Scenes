@@ -11,20 +11,21 @@ namespace Depra.Scenes.Operations
 {
 	public sealed class SceneUnloadOperation : ILoadingOperation
 	{
-		private readonly SceneDefinition _sceneForUnload;
+		private readonly SceneDefinition _scene;
+		private readonly OperationDescription _description;
 
-		public SceneUnloadOperation(SceneDefinition sceneForUnload, OperationDescription description)
+		public SceneUnloadOperation(SceneDefinition scene, OperationDescription description)
 		{
-			Description = description;
-			_sceneForUnload = sceneForUnload;
+			_scene = scene;
+			_description = description;
 		}
 
-		public OperationDescription Description { get; }
+		OperationDescription ILoadingOperation.Description => _description;
 
 		public async Task Load(ProgressCallback onProgress, CancellationToken token)
 		{
 			onProgress?.Invoke(0);
-			var operation = SceneManager.UnloadSceneAsync(_sceneForUnload.Name);
+			var operation = SceneManager.UnloadSceneAsync(_scene.DisplayName);
 			if (operation == null)
 			{
 				onProgress?.Invoke(1);

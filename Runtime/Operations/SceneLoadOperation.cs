@@ -12,20 +12,21 @@ namespace Depra.Scenes.Operations
 	public sealed class SceneLoadOperation : ILoadingOperation
 	{
 		private readonly SceneDefinition _desiredScene;
+		private readonly OperationDescription _description;
 
 		public SceneLoadOperation(SceneDefinition desiredScene, OperationDescription description)
 		{
-			Description = description;
+			_description = description;
 			_desiredScene = desiredScene;
 		}
 
-		public OperationDescription Description { get; }
+		OperationDescription ILoadingOperation.Description => _description;
 
 		public async Task Load(ProgressCallback onProgress, CancellationToken token)
 		{
 			onProgress?.Invoke(0);
 			SceneManager.sceneLoaded += OnSceneLoaded;
-			var operation = SceneManager.LoadSceneAsync(_desiredScene.Name, _desiredScene.LoadMode);
+			var operation = SceneManager.LoadSceneAsync(_desiredScene.DisplayName, _desiredScene.LoadMode);
 			if (operation == null)
 			{
 				onProgress?.Invoke(1);
