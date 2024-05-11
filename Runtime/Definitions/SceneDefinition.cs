@@ -17,6 +17,7 @@ namespace Depra.Scenes.Definitions
 		[field: TextArea, SerializeField] public string Description { get; private set; }
 
 		public string DisplayName => _displayName;
+		public int Index => SceneManager.GetSceneByPath(_displayName).buildIndex;
 
 		public bool IsActive() => SceneManager.GetActiveScene().name == DisplayName;
 	}
