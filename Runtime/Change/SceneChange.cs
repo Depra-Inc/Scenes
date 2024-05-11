@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
 
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,14 +12,14 @@ using Depra.Scenes.Exceptions;
 using Depra.Scenes.Operations;
 using UnityEngine.SceneManagement;
 
-namespace Depra.Scenes.Services
+namespace Depra.Scenes.Change
 {
 	public sealed class SceneChange : ISceneChange
 	{
 		private readonly ILoadingCurtain _loadingCurtain;
 
-		public SceneChange(ILoadingCurtain loadingCurtain) : this(
-			new SceneDefinition(SceneManager.GetActiveScene().name, LoadSceneMode.Single), loadingCurtain) { }
+		public SceneChange(SceneDatabase scenes, ILoadingCurtain loadingCurtain) : this(
+			scenes.Find(SceneManager.GetActiveScene().name), loadingCurtain) { }
 
 		public SceneChange(SceneDefinition initialScene, ILoadingCurtain loadingCurtain)
 		{
@@ -32,10 +32,10 @@ namespace Depra.Scenes.Services
 		public bool IsActive(SceneDefinition scene) =>
 			scene == ActiveScene || scene.Name == SceneManager.GetActiveScene().name;
 
-		public Task Load(SceneDefinition scene, CancellationToken token,
-			IEnumerable<ILoadingOperation> addOperations) => IsActive(scene)
-			? throw new UnexpectedSceneSwitch(scene.Name)
-			: LoadInternal(ActiveScene = scene, token, addOperations);
+		public Task Load(SceneDefinition scene, CancellationToken token, params ILoadingOperation[] addOperations) =>
+			IsActive(scene)
+				? throw new UnexpectedSceneSwitch(scene.Name)
+				: LoadInternal(ActiveScene = scene, token, addOperations);
 
 		public async Task Unload(SceneDefinition scene, CancellationToken token)
 		{
@@ -43,16 +43,16 @@ namespace Depra.Scenes.Services
 			await new CleanLoadingCurtain().Load(operations, token);
 		}
 
-		public async Task Reload(CancellationToken token, IEnumerable<ILoadingOperation> addOperations)
+		public async Task Reload(CancellationToken token, params ILoadingOperation[] addOperations)
 		{
 			await Unload(ActiveScene, token);
 			await LoadInternal(ActiveScene, token, addOperations);
 		}
 
 		private async Task LoadInternal(SceneDefinition scene, CancellationToken token,
-			IEnumerable<ILoadingOperation> addOperations = null)
+			params ILoadingOperation[] addOperations)
 		{
-			addOperations ??= new List<ILoadingOperation>();
+			addOperations ??= Array.Empty<ILoadingOperation>();
 			var operations = addOperations.Concat(new[]
 				{ new SceneLoadingOperation(scene, OperationDescription.Default(scene.Name)) });
 

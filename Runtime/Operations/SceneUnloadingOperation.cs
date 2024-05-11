@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Loading.Operations;
@@ -12,20 +11,25 @@ namespace Depra.Scenes.Operations
 {
 	public sealed class SceneUnloadingOperation : ILoadingOperation
 	{
-		private readonly SceneDefinition _sceneDefinition;
+		private readonly SceneDefinition _sceneForUnload;
 
-		public SceneUnloadingOperation(SceneDefinition sceneDefinition, OperationDescription description)
+		public SceneUnloadingOperation(SceneDefinition sceneForUnload, OperationDescription description)
 		{
 			Description = description;
-			_sceneDefinition = sceneDefinition;
+			_sceneForUnload = sceneForUnload;
 		}
 
 		public OperationDescription Description { get; }
 
-		async Task ILoadingOperation.Load(Action<float> onProgress, CancellationToken token)
+		public async Task Load(ProgressCallback onProgress, CancellationToken token)
 		{
 			onProgress?.Invoke(0);
-			var operation = SceneManager.UnloadSceneAsync(_sceneDefinition.Name);
+			var operation = SceneManager.UnloadSceneAsync(_sceneForUnload.Name);
+			if (operation == null)
+			{
+				onProgress?.Invoke(1);
+				return;
+			}
 
 			while (operation.isDone == false)
 			{

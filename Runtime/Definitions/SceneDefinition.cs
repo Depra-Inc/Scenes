@@ -5,23 +5,17 @@ using System;
 using Depra.Inspector.Attributes;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static Depra.Scenes.Module;
 
 namespace Depra.Scenes.Definitions
 {
-	[Serializable]
-	public sealed partial class SceneDefinition
+	public sealed partial class SceneDefinition : ScriptableObject
 	{
 		[Scene] [SerializeField] private string _name;
 		[SerializeField] private string _title;
 		[SerializeField] private LoadSceneMode _loadMode;
 		[TextArea] [SerializeField] private string _description;
 		[SerializeField] private bool _activateOnLoad = true;
-
-		public SceneDefinition(string name, LoadSceneMode loadMode)
-		{
-			_name = name;
-			_loadMode = loadMode;
-		}
 
 		public string Name => _name;
 		public string Description => _description;
@@ -31,9 +25,12 @@ namespace Depra.Scenes.Definitions
 		internal bool ActivateOnLoad => _activateOnLoad;
 	}
 
+	[CreateAssetMenu(fileName = FILE_NAME, menuName = MENU_PATH + FILE_NAME, order = DEFAULT_ORDER)]
 	public sealed partial class SceneDefinition : IEquatable<SceneDefinition>
 	{
-		public static bool operator ==(SceneDefinition a, SceneDefinition b) => a?.Equals(b) ?? b is null;
+		private const string FILE_NAME = nameof(SceneDefinition);
+
+		public static bool operator ==(SceneDefinition a, SceneDefinition b) => a != null ? a.Equals(b) : b is null;
 
 		public static bool operator !=(SceneDefinition a, SceneDefinition b) => !(a == b);
 

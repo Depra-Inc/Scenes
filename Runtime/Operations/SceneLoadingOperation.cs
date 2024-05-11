@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Loading.Operations;
@@ -12,21 +11,26 @@ namespace Depra.Scenes.Operations
 {
 	public sealed class SceneLoadingOperation : ILoadingOperation
 	{
-		private readonly SceneDefinition _sceneDefinition;
+		private readonly SceneDefinition _desiredScene;
 
-		public SceneLoadingOperation(SceneDefinition sceneDefinition, OperationDescription description)
+		public SceneLoadingOperation(SceneDefinition desiredScene, OperationDescription description)
 		{
 			Description = description;
-			_sceneDefinition = sceneDefinition;
+			_desiredScene = desiredScene;
 		}
 
 		public OperationDescription Description { get; }
 
-		async Task ILoadingOperation.Load(Action<float> onProgress, CancellationToken token)
+		public async Task Load(ProgressCallback onProgress, CancellationToken token)
 		{
 			onProgress?.Invoke(0);
 			SceneManager.sceneLoaded += OnSceneLoaded;
-			var operation = SceneManager.LoadSceneAsync(_sceneDefinition.Name, _sceneDefinition.LoadMode);
+			var operation = SceneManager.LoadSceneAsync(_desiredScene.Name, _desiredScene.LoadMode);
+			if (operation == null)
+			{
+				onProgress?.Invoke(1);
+				return;
+			}
 
 			while (operation.isDone == false)
 			{
@@ -40,7 +44,7 @@ namespace Depra.Scenes.Operations
 		private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 		{
 			SceneManager.sceneLoaded -= OnSceneLoaded;
-			if (_sceneDefinition.ActivateOnLoad && scene.IsValid())
+			if (_desiredScene.ActivateOnLoad && scene.IsValid())
 			{
 				SceneManager.SetActiveScene(scene);
 			}
