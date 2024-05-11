@@ -30,11 +30,11 @@ namespace Depra.Scenes.Definitions
 	{
 		private const string FILE_NAME = nameof(SceneDefinition);
 
-		public static bool operator ==(SceneDefinition a, SceneDefinition b) => a != null ? a.Equals(b) : b is null;
+		public static bool operator ==(SceneDefinition a, SceneDefinition b) => a?.Equals(b) ?? b is null;
 
 		public static bool operator !=(SceneDefinition a, SceneDefinition b) => !(a == b);
 
-		public bool Equals(SceneDefinition other) => other != null && Name == other.Name;
+		public bool Equals(SceneDefinition other) => other?.Name == Name;
 
 		public override bool Equals(object obj) => obj is SceneDefinition other && Equals(other);
 
