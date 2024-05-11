@@ -24,6 +24,11 @@ namespace Depra.Scenes.Operations
 
 		public async Task Load(ProgressCallback onProgress, CancellationToken token)
 		{
+			if (_scene.CanBeUnloaded == false)
+			{
+				return;
+			}
+
 			onProgress?.Invoke(0);
 			var operation = SceneManager.UnloadSceneAsync(_scene.DisplayName);
 			if (operation == null)

@@ -13,8 +13,8 @@ namespace Depra.Scenes.Definitions
 	{
 		[Scene] [SerializeField] private string _displayName;
 		[field: SerializeField] public LoadSceneMode LoadMode { get; private set; }
+		[field: SerializeField] internal bool CanBeUnloaded { get; private set; } = true;
 		[field: SerializeField] internal bool ActivateOnLoad { get; private set; } = true;
-		[field: TextArea, SerializeField] public string Description { get; private set; }
 
 		public string DisplayName => _displayName;
 		public int Index => SceneManager.GetSceneByName(_displayName).buildIndex;
