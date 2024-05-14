@@ -15,11 +15,11 @@ namespace Depra.Scenes.Operations
 		private readonly SceneDefinition _previousScene;
 		private readonly OperationDescription _description;
 
-		public SceneChangeOperation(SceneDefinition from, SceneDefinition to)
+		public SceneChangeOperation(SceneDefinition from, SceneDefinition to, OperationDescription description)
 		{
 			_desiredScene = to;
 			_previousScene = from;
-			_description = OperationDescription.Default(_desiredScene.DisplayName);
+			_description = description;
 		}
 
 		OperationDescription ILoadingOperation.Description => _description;
