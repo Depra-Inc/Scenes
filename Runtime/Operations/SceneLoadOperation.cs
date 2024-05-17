@@ -7,7 +7,6 @@ using Depra.Expectation;
 using Depra.Loading.Operations;
 using Depra.Scenes.Definitions;
 using UnityEngine.SceneManagement;
-using AsyncOperation = UnityEngine.AsyncOperation;
 
 namespace Depra.Scenes.Operations
 {
@@ -17,7 +16,6 @@ namespace Depra.Scenes.Operations
 		private readonly OperationDescription _description;
 		private readonly IExpectant _externalActivationExpectant;
 
-		private AsyncOperation _operation;
 		private Expectant _loadingExpectant;
 		private IExpectant _activationExpectant;
 
@@ -39,20 +37,21 @@ namespace Depra.Scenes.Operations
 				SetupActivation();
 			}
 
-			_operation = SceneManager.LoadSceneAsync(_desiredScene.DisplayName, _desiredScene.LoadMode);
-			if (_operation == null)
+			var operation = SceneManager.LoadSceneAsync(_desiredScene.DisplayName, _desiredScene.LoadMode);
+			if (operation == null)
 			{
 				onProgress?.Invoke(1);
 				return;
 			}
 
-			_operation.allowSceneActivation = false;
-			while (_operation.isDone == false)
+			operation.allowSceneActivation = false;
+			while (operation.isDone == false)
 			{
-				onProgress?.Invoke(_operation.progress);
+				onProgress?.Invoke(operation.progress);
 				await Task.Yield();
 			}
 
+			operation.allowSceneActivation = true;
 			onProgress?.Invoke(1);
 		}
 
@@ -79,7 +78,6 @@ namespace Depra.Scenes.Operations
 
 		private void Activate()
 		{
-			_operation.allowSceneActivation = true;
 			var scene = SceneManager.GetSceneByName(_desiredScene.DisplayName);
 			SceneManager.SetActiveScene(scene);
 			Dispose();
@@ -87,7 +85,6 @@ namespace Depra.Scenes.Operations
 
 		private void Dispose()
 		{
-			_operation = null;
 			_loadingExpectant?.Dispose();
 			_activationExpectant?.Dispose();
 		}
