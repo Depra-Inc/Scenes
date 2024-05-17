@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Expectation;
@@ -13,81 +14,67 @@ namespace Depra.Scenes.Operations
 {
 	public sealed class SceneLoadOperation : ILoadingOperation
 	{
+		private readonly IExpectant _finishExpectant;
 		private readonly ISceneActivation _activation;
 		private readonly SceneDefinition _desiredScene;
-		private readonly IExpectant _activationExpectant;
 		private readonly OperationDescription _description;
 
-		private Expectant _loadingExpectant;
-
 		public SceneLoadOperation(SceneDefinition desiredScene, OperationDescription description,
-			ISceneActivation activation, IExpectant activationExpectant = null)
+			ISceneActivation activation, IExpectant finishExpectant = null)
 		{
-			_activation = activation;
 			_description = description;
 			_desiredScene = desiredScene;
-			_activationExpectant = activationExpectant;
+			_finishExpectant = finishExpectant;
+			_activation = desiredScene.ActivateOnLoad ? activation : new EmptySceneActivation();
 		}
 
 		OperationDescription ILoadingOperation.Description => _description;
 
-		public async Task Load(ProgressCallback onProgress, CancellationToken token)
+		public async Task Load(IProgress<float> progress, CancellationToken token)
 		{
-			onProgress?.Invoke(0);
-			if (_desiredScene.ActivateOnLoad)
-			{
-				SetupActivation();
-			}
-
+			progress.Report(0);
 			var operation = SceneManager.LoadSceneAsync(_desiredScene.DisplayName, _desiredScene.LoadMode);
 			if (operation == null)
 			{
-				onProgress?.Invoke(1);
+				progress.Report(1);
 				return;
 			}
 
 			_activation.BeforeLoading(operation);
 			while (operation.isDone == false)
 			{
-				onProgress?.Invoke(operation.progress);
+				progress.Report(operation.progress);
 				_activation.OnProgress(operation);
 
 				await Task.Yield();
 			}
 
-			onProgress?.Invoke(1);
+			progress.Report(1);
+			await AfterLoading();
 		}
 
-		private void SetupActivation()
+		private async Task AfterLoading()
 		{
-			SceneManager.sceneLoaded += OnSceneLoaded;
-			new GroupExpectant.And()
-				.With(_loadingExpectant = new Expectant())
-				.With(_activationExpectant)
-				.Build()
-				.Subscribe(Activate);
-		}
-
-		private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-		{
-			SceneManager.sceneLoaded -= OnSceneLoaded;
-			if (scene.IsValid())
+			if (_finishExpectant == null)
 			{
-				_loadingExpectant?.SetReady();
+				return;
+			}
+
+			await _finishExpectant.AsTask();
+			if (_desiredScene.ActivateOnLoad)
+			{
+				await Task.Yield();
+				ActivateScene();
 			}
 		}
 
-		private void Activate()
+		private void ActivateScene()
 		{
-			var scene = SceneManager.GetSceneByName(_desiredScene.DisplayName);
-			SceneManager.SetActiveScene(scene);
-			Dispose();
-		}
-
-		private void Dispose()
-		{
-			_loadingExpectant?.Dispose();
-			_activationExpectant?.Dispose();
+			var loadedScene = SceneManager.GetSceneByName(_desiredScene.DisplayName);
+			if (loadedScene.IsValid())
+			{
+				SceneManager.SetActiveScene(loadedScene);
+			}
 		}
 	}
 }

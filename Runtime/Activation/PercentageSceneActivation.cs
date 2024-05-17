@@ -22,7 +22,5 @@ namespace Depra.Scenes.Activation
 				operation.allowSceneActivation = true;
 			}
 		}
-
-		void ISceneActivation.AfterLoading() { }
 	}
 }

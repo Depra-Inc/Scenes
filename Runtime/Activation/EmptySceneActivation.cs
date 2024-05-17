@@ -10,7 +10,5 @@ namespace Depra.Scenes.Activation
 		void ISceneActivation.BeforeLoading(AsyncOperation operation) { }
 
 		void ISceneActivation.OnProgress(AsyncOperation operation) { }
-
-		void ISceneActivation.AfterLoading() { }
 	}
 }
