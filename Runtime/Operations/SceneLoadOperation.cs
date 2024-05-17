@@ -14,17 +14,15 @@ namespace Depra.Scenes.Operations
 {
 	public sealed class SceneLoadOperation : ILoadingOperation
 	{
-		private readonly IExpectant _finishExpectant;
 		private readonly ISceneActivation _activation;
 		private readonly SceneDefinition _desiredScene;
 		private readonly OperationDescription _description;
 
 		public SceneLoadOperation(SceneDefinition desiredScene, OperationDescription description,
-			ISceneActivation activation, IExpectant finishExpectant = null)
+			ISceneActivation activation)
 		{
 			_description = description;
 			_desiredScene = desiredScene;
-			_finishExpectant = finishExpectant;
 			_activation = desiredScene.ActivateOnLoad ? activation : new EmptySceneActivation();
 		}
 
@@ -55,12 +53,6 @@ namespace Depra.Scenes.Operations
 
 		private async Task AfterLoading()
 		{
-			if (_finishExpectant == null)
-			{
-				return;
-			}
-
-			await _finishExpectant.AsTask();
 			if (_desiredScene.ActivateOnLoad)
 			{
 				await Task.Yield();

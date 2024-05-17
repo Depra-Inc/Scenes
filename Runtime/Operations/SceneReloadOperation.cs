@@ -4,7 +4,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Depra.Expectation;
 using Depra.Loading.Operations;
 using Depra.Scenes.Activation;
 using Depra.Scenes.Definitions;
@@ -14,16 +13,14 @@ namespace Depra.Scenes.Change
 {
 	public sealed class SceneReloadOperation : ILoadingOperation
 	{
-		private readonly IExpectant _finishExpectant;
 		private readonly ISceneActivation _activation;
 		private readonly SceneDefinition _activeScene;
 		private readonly OperationDescription _description;
 
-		public SceneReloadOperation(SceneDatabase scenes, ISceneActivation activation, IExpectant finishExpectant = null)
+		public SceneReloadOperation(SceneDatabase scenes, ISceneActivation activation)
 		{
 			_activation = activation;
 			_activeScene = scenes.Active;
-			_finishExpectant = finishExpectant;
 			_description = OperationDescription.Default(_activeScene.DisplayName);
 		}
 
@@ -31,10 +28,8 @@ namespace Depra.Scenes.Change
 
 		public async Task Load(IProgress<float> progress, CancellationToken token)
 		{
-			await new SceneUnloadOperation(_activeScene, _description)
-				.Load(progress, token);
-			await new SceneLoadOperation(_activeScene, _description, _activation, _finishExpectant)
-				.Load(progress, token);
+			await new SceneUnloadOperation(_activeScene, _description).Load(progress, token);
+			await new SceneLoadOperation(_activeScene, _description, _activation).Load(progress, token);
 		}
 	}
 }
