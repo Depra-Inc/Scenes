@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Depra.Expectation;
 using Depra.Loading.Operations;
+using Depra.Scenes.Activation;
 using Depra.Scenes.Definitions;
 using UnityEngine.SceneManagement;
 
@@ -12,19 +13,20 @@ namespace Depra.Scenes.Operations
 {
 	public sealed class SceneLoadOperation : ILoadingOperation
 	{
+		private readonly ISceneActivation _activation;
 		private readonly SceneDefinition _desiredScene;
+		private readonly IExpectant _activationExpectant;
 		private readonly OperationDescription _description;
-		private readonly IExpectant _externalActivationExpectant;
 
 		private Expectant _loadingExpectant;
-		private IExpectant _activationExpectant;
 
 		public SceneLoadOperation(SceneDefinition desiredScene, OperationDescription description,
-			IExpectant activationExpectant = null)
+			ISceneActivation activation, IExpectant activationExpectant = null)
 		{
+			_activation = activation;
 			_description = description;
 			_desiredScene = desiredScene;
-			_externalActivationExpectant = activationExpectant;
+			_activationExpectant = activationExpectant;
 		}
 
 		OperationDescription ILoadingOperation.Description => _description;
@@ -44,14 +46,11 @@ namespace Depra.Scenes.Operations
 				return;
 			}
 
-			operation.allowSceneActivation = false;
+			_activation.BeforeLoading(operation);
 			while (operation.isDone == false)
 			{
 				onProgress?.Invoke(operation.progress);
-				if (operation.progress >= 0.9f)
-				{
-					operation.allowSceneActivation = true;
-				}
+				_activation.OnProgress(operation);
 
 				await Task.Yield();
 			}
@@ -61,14 +60,12 @@ namespace Depra.Scenes.Operations
 
 		private void SetupActivation()
 		{
-			_loadingExpectant = new Expectant();
-			_activationExpectant = new GroupExpectant.And()
-				.With(_loadingExpectant)
-				.With(_externalActivationExpectant)
-				.Build();
-
-			_activationExpectant.Subscribe(Activate);
 			SceneManager.sceneLoaded += OnSceneLoaded;
+			new GroupExpectant.And()
+				.With(_loadingExpectant = new Expectant())
+				.With(_activationExpectant)
+				.Build()
+				.Subscribe(Activate);
 		}
 
 		private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
