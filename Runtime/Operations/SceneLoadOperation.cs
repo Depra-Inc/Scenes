@@ -48,10 +48,14 @@ namespace Depra.Scenes.Operations
 			while (operation.isDone == false)
 			{
 				onProgress?.Invoke(operation.progress);
+				if (operation.progress >= 0.9f)
+				{
+					operation.allowSceneActivation = true;
+				}
+
 				await Task.Yield();
 			}
 
-			operation.allowSceneActivation = true;
 			onProgress?.Invoke(1);
 		}
 
