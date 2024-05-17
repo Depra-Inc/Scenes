@@ -4,7 +4,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Depra.Expectation;
 using Depra.Loading.Operations;
 using Depra.Scenes.Activation;
 using Depra.Scenes.Definitions;
@@ -48,21 +47,15 @@ namespace Depra.Scenes.Operations
 			}
 
 			progress.Report(1);
-			await AfterLoading();
-		}
-
-		private async Task AfterLoading()
-		{
 			if (_desiredScene.ActivateOnLoad)
 			{
-				await Task.Yield();
 				ActivateScene();
 			}
 		}
 
 		private void ActivateScene()
 		{
-			var loadedScene = SceneManager.GetSceneByName(_desiredScene.DisplayName);
+			var loadedScene = _desiredScene.Handle;
 			if (loadedScene.IsValid())
 			{
 				SceneManager.SetActiveScene(loadedScene);

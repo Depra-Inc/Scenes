@@ -11,8 +11,7 @@
     "overrideReferences": true,
     "precompiledReferences": [
         "Depra.Assets.dll",
-        "Depra.Loading.dll",
-        "Depra.Expectation.dll"
+        "Depra.Loading.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],

@@ -16,10 +16,11 @@ namespace Depra.Scenes.Definitions
 		[field: SerializeField] internal bool CanBeUnloaded { get; private set; } = true;
 		[field: SerializeField] internal bool ActivateOnLoad { get; private set; } = true;
 
+		public int Index => Handle.buildIndex;
 		public string DisplayName => _displayName;
-		public int Index => SceneManager.GetSceneByName(_displayName).buildIndex;
+		internal Scene Handle => SceneManager.GetSceneByName(_displayName);
 
-		public bool IsActive() => SceneManager.GetActiveScene().name == DisplayName;
+		public bool IsActive() => Handle.name == DisplayName;
 	}
 
 	[CreateAssetMenu(fileName = FILE_NAME, menuName = MENU_PATH + FILE_NAME, order = DEFAULT_ORDER)]
