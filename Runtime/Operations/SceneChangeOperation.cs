@@ -3,6 +3,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using Depra.Expectation;
 using Depra.Loading.Operations;
 using Depra.Scenes.Definitions;
 using Depra.Scenes.Exceptions;
@@ -13,13 +14,16 @@ namespace Depra.Scenes.Operations
 	{
 		private readonly SceneDefinition _desiredScene;
 		private readonly SceneDefinition _previousScene;
+		private readonly IExpectant _activationExpectant;
 		private readonly OperationDescription _description;
 
-		public SceneChangeOperation(SceneDefinition from, SceneDefinition to, OperationDescription description)
+		public SceneChangeOperation(SceneDefinition from, SceneDefinition to,
+			OperationDescription description, IExpectant activationExpectant = null)
 		{
 			_desiredScene = to;
 			_previousScene = from;
 			_description = description;
+			_activationExpectant = activationExpectant;
 		}
 
 		OperationDescription ILoadingOperation.Description => _description;
@@ -31,7 +35,7 @@ namespace Depra.Scenes.Operations
 				throw new UnexpectedSceneSwitch(_desiredScene.DisplayName);
 			}
 
-			await new SceneLoadOperation(_desiredScene, _description).Load(onProgress, token);
+			await new SceneLoadOperation(_desiredScene, _description, _activationExpectant).Load(onProgress, token);
 			await new SceneUnloadOperation(_previousScene, _description).Load(onProgress, token);
 		}
 	}
