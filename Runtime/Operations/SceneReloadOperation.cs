@@ -1,15 +1,12 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
-// © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2023-2025 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Threading;
-using System.Threading.Tasks;
-using Depra.Loading.Operations;
-using Depra.Scenes.Activation;
-using Depra.Scenes.Definitions;
-using Depra.Scenes.Operations;
+using Depra.Loading;
+using Depra.Threading;
 
-namespace Depra.Scenes.Change
+namespace Depra.Scenes.Operations
 {
 	public sealed class SceneReloadOperation : ILoadingOperation
 	{
@@ -26,7 +23,7 @@ namespace Depra.Scenes.Change
 
 		OperationDescription ILoadingOperation.Description => _description;
 
-		public async Task Load(IProgress<float> progress, CancellationToken token)
+		public async ITask Load(IProgress<float> progress, CancellationToken token)
 		{
 			await new SceneUnloadOperation(_activeScene, _description).Load(progress, token);
 			await new SceneLoadOperation(_activeScene, _description, _activation).Load(progress, token);

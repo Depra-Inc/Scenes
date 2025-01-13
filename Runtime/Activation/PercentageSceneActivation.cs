@@ -1,9 +1,9 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
-// © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2023-2025 Nikolay Melnikov <n.melnikov@depra.org>
 
 using UnityEngine;
 
-namespace Depra.Scenes.Activation
+namespace Depra.Scenes
 {
 	public sealed class PercentageSceneActivation : ISceneActivation
 	{

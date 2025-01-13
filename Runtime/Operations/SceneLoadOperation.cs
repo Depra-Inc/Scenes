@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
-// © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2023-2025 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Depra.Loading.Operations;
-using Depra.Scenes.Activation;
-using Depra.Scenes.Definitions;
+using Depra.Loading;
+using Depra.Threading;
 using UnityEngine.SceneManagement;
 
 namespace Depra.Scenes.Operations
@@ -27,7 +26,7 @@ namespace Depra.Scenes.Operations
 
 		OperationDescription ILoadingOperation.Description => _description;
 
-		public async Task Load(IProgress<float> progress, CancellationToken token)
+		public async ITask Load(IProgress<float> progress, CancellationToken token)
 		{
 			progress.Report(0);
 			var operation = SceneManager.LoadSceneAsync(_desiredScene.DisplayName, _desiredScene.LoadMode);
