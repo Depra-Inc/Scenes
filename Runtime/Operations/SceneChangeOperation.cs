@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
-// © 2023-2025 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2023-2025 Depra <n.melnikov@depra.org>
 
 using System;
 using System.Threading;
@@ -33,8 +33,15 @@ namespace Depra.Scenes.Operations
 				throw new UnexpectedSceneSwitch(_desiredScene.DisplayName);
 			}
 
-			await new SceneLoadOperation(_desiredScene, _description, _activation).Load(progress, token);
-			await new SceneUnloadOperation(_previousScene, _description).Load(progress, token);
+			await new SceneLoadOperation(_desiredScene, _description, _activation)
+				.Load(new Progress<float>(loadProgress =>
+					progress.Report(loadProgress * 0.5f)), token);
+
+			await new SceneUnloadOperation(_previousScene, _description)
+				.Load(new Progress<float>(unloadProgress =>
+					progress.Report(0.5f + unloadProgress * 0.5f)), token);
+
+			progress.Report(1);
 		}
 	}
 }
