@@ -1,7 +1,9 @@
 {
     "name": "Depra.Scenes.Editor",
     "rootNamespace": "Depra.Scenes",
-    "references": [],
+    "references": [
+        "GUID:f86db9196a48117498e0454a2faf0fc5"
+    ],
     "includePlatforms": [
         "Editor"
     ],

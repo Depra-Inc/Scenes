@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
-// © 2023-2025 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2023-2026 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Threading;
@@ -10,23 +10,25 @@ namespace Depra.Scenes.Operations
 {
 	public sealed class SceneReloadOperation : ILoadingOperation
 	{
+		private readonly SceneReference _scene;
 		private readonly ISceneActivation _activation;
-		private readonly SceneDefinition _activeScene;
 		private readonly OperationDescription _description;
 
-		public SceneReloadOperation(SceneDatabase scenes, ISceneActivation activation)
+		public SceneReloadOperation(SceneReference scene, OperationDescription description,
+			ISceneActivation activation = null)
 		{
-			_activation = activation;
-			_activeScene = scenes.Active;
-			_description = OperationDescription.Default(_activeScene.DisplayName);
+			_scene = scene;
+			_description = description;
+			_activation = activation ?? new EmptySceneActivation();
 		}
 
 		OperationDescription ILoadingOperation.Description => _description;
 
 		public async ITask Load(IProgress<float> progress, CancellationToken token)
 		{
-			await new SceneUnloadOperation(_activeScene, _description).Load(progress, token);
-			await new SceneLoadOperation(_activeScene, _description, _activation).Load(progress, token);
+			await SceneLoading.Unload(_scene, new ProgressRange(progress, 0f, 0.5f));
+			await SceneLoading.Load(_scene, _activation, new ProgressRange(progress, 0.5f, 1f));
+			SceneLoading.Activate(_scene);
 		}
 	}
 }

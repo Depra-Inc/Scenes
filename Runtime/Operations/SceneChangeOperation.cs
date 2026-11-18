@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
-// © 2023-2025 Depra <n.melnikov@depra.org>
+// © 2023-2026 Depra <n.melnikov@depra.org>
 
 using System;
 using System.Threading;
@@ -10,38 +10,32 @@ namespace Depra.Scenes.Operations
 {
 	public sealed class SceneChangeOperation : ILoadingOperation
 	{
+		private readonly SceneReference _to;
+		private readonly SceneReference _from;
 		private readonly ISceneActivation _activation;
-		private readonly SceneDefinition _desiredScene;
-		private readonly SceneDefinition _previousScene;
 		private readonly OperationDescription _description;
 
-		public SceneChangeOperation(SceneDefinition from, SceneDefinition to,
-			OperationDescription description, ISceneActivation activation)
+		public SceneChangeOperation(SceneReference from, SceneReference to, OperationDescription description,
+			ISceneActivation activation = null)
 		{
-			_desiredScene = to;
-			_previousScene = from;
-			_activation = activation;
+			_to = to;
+			_from = from;
 			_description = description;
+			_activation = activation ?? new EmptySceneActivation();
 		}
 
 		OperationDescription ILoadingOperation.Description => _description;
 
 		public async ITask Load(IProgress<float> progress, CancellationToken token)
 		{
-			if (_desiredScene.IsActive())
+			if (_from == _to)
 			{
-				throw new UnexpectedSceneSwitch(_desiredScene.DisplayName);
+				throw new UnexpectedSceneSwitch(_to.Name);
 			}
 
-			await new SceneLoadOperation(_desiredScene, _description, _activation)
-				.Load(new Progress<float>(loadProgress =>
-					progress.Report(loadProgress * 0.5f)), token);
-
-			await new SceneUnloadOperation(_previousScene, _description)
-				.Load(new Progress<float>(unloadProgress =>
-					progress.Report(0.5f + unloadProgress * 0.5f)), token);
-
-			progress.Report(1);
+			await SceneLoading.Load(_to, _activation, new ProgressRange(progress, 0f, 0.5f));
+			SceneLoading.Activate(_to);
+			await SceneLoading.Unload(_from, new ProgressRange(progress, 0.5f, 1f));
 		}
 	}
 }
