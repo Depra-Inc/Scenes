@@ -1,13 +1,12 @@
 {
 	"name": "com.depra.scenes",
-	"version": "0.2.2",
+	"version": "0.3.0",
 	"displayName": "Depra.Scenes",
 	"description": "",
-	"unity": "2022.3",
+	"unity": "6000.3",
 	"license": "Apache-2.0",
 	"dependencies": {
-		"com.depra.loading.unity": "0.2.0",
-		"com.depra.inspector.unity": "0.0.6"
+		"com.depra.loading.unity": "0.2.0"
 	},
 	"keywords": [
 		"unity",
